@@ -4,6 +4,8 @@ import { ClienteService } from './cliente.service';
 import Swal from 'sweetalert2';
 import { tap } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';         //PARA ACTIVAR EL PATH VARIABLE DE LA PAGINACIÓN
+import { ModalService } from './detalle/modal.service';
+
 
 @Component({
   selector: 'app-clientes',
@@ -11,9 +13,10 @@ import { ActivatedRoute } from '@angular/router';         //PARA ACTIVAR EL PATH
 })
 export class ClientesComponent implements OnInit {
 
-  constructor(clienteService:ClienteService, activatedRoute : ActivatedRoute) {
+  constructor(clienteService:ClienteService, activatedRoute : ActivatedRoute, modalService : ModalService) {
     this.clienteService = clienteService;
     this.activatedRoute = activatedRoute;
+    this.modalService = modalService;
   }
 
 //CON LIST
@@ -57,6 +60,18 @@ export class ClientesComponent implements OnInit {
           this.paginador = response;
         });
     });
+
+    //SE RELACIONA CON   this.modalService._notificarUpload.emit(this.cliente); DE DetalleComponent.ts. EN EL MET subirFoto().
+    //SE RECORRE LA LISTA DE CLIENTES Y SE COMPARA CON EL CLIENTE QUE SE EMITIÓ EN DetalleComponent AL ACTUALIZAR LA FOTO. Y SI LOS ID COINCIDEN, SE ACTUALIZA LA FOTO DEL CLIENTE EN LA LISTA.
+    this.modalService.notificarUpload.subscribe(cliente => {
+      this.clientes = this.clientes.map(clienteOriginal => {
+        if(cliente.id == clienteOriginal.id){
+          clienteOriginal.foto = cliente.foto;
+        }
+        return clienteOriginal;
+      })
+    });
+
   }
 
   public delete(cliente : Cliente) : void {
@@ -91,10 +106,17 @@ export class ClientesComponent implements OnInit {
     })
   }
 
+  abrirModal(cliente : Cliente){
+    this.clienteSeleccionado = cliente;
+    this.modalService.abrirModal();
+  }
+
+
   clientes : Cliente[];
   private clienteService : ClienteService;
   private activatedRoute : ActivatedRoute;
   paginador : any;
   clienteSeleccionado : Cliente;
+  private modalService : ModalService;
 
 }

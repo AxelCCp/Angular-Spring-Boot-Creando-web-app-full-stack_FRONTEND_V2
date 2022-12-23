@@ -14,6 +14,7 @@ import { formatDate } from '@angular/common';
 import { tap } from 'rxjs/operators';
 import { HttpRequest } from '@angular/common/http';
 import { HttpEvent } from '@angular/common/http';
+import { Region} from './region';
 
 @Injectable({
   providedIn: 'root'
@@ -25,42 +26,6 @@ export class ClienteService {
     this.router = router;
   }
 
-
-//ESTO ES CON LIST
-/*
-  public getClientes() : Observable<Cliente[]>{
-    //return of(CLIENTES);
-    //return this.http.get<Cliente[]>(this.urlEndPoint);      //<Cliente[]> ES UN CAST YA Q EL GET DEVUELVE UN ANY.
-    return this.http.get(this.urlEndPoint).pipe(
-
-      tap(response => {
-        let clientes = response as Cliente[];
-        console.log('ClienteService : tap 1');
-        clientes.forEach(cliente => {
-          console.log(cliente.nombre);
-        })
-      }),
-
-      map(response => {
-        let clientes = response as Cliente[];
-        return clientes.map(cliente => {
-          cliente.nombre = cliente.nombre.toUpperCase();
-          cliente.apellido = cliente.apellido.toUpperCase();
-          cliente.email = cliente.email.toUpperCase();
-          cliente.createAt = formatDate(cliente.createAt, 'dd-MM-yyyy', 'en-US'); //MÁS OPCIONES EN CLASE 78
-          return cliente;
-        });
-      }),
-
-      tap(response => {
-        console.log('ClienteService : tap 2');
-        response.forEach(cliente => {
-          console.log(cliente.nombre);
-        })
-      }),
-
-    );
-  }*/
 
   //ESTO ES CON PAGE
   public getClientes(page:number) : Observable<any>{
@@ -95,12 +60,15 @@ export class ClienteService {
   }
 
 
-
   public create(cliente : Cliente) : Observable<Cliente> {
     return this.http.post(this.urlEndPoint, cliente, {headers : this.httpHeaders}) //DENTRO DE UN OBJ SE PASA EL httpHeaders.
     .pipe(
       map((response : any) => response.cliente as Cliente),
       catchError( e => {
+
+        if(this.isNoAutorizado(e) == true){
+          return throwError(e);
+        }
 
         //MANEJANDO EL ERROR Q VIENE DESDE LA VALIDACIÓN DE SPRING
         if(e.status==400){
@@ -114,10 +82,14 @@ export class ClienteService {
   }
 
 
-
   public getCliente(id) : Observable<Cliente> {
     return this.http.get<Cliente>(`${this.urlEndPoint}/${id}`)
     .pipe(catchError(e => {
+
+      if(this.isNoAutorizado(e) == true){
+        return throwError(e);
+      }
+
       this.router.navigate(['/clientes']);
       console.error(e.error.mensaje);
       swal.fire('Error al editar', e.error.mensaje, 'error');
@@ -126,11 +98,14 @@ export class ClienteService {
   }
 
 
-
   public update(cliente : Cliente) : Observable<any> {
                                                       //id cliente     cliente con sus datos para el update      y las cabeceras.
     return this.http.put<any>(`${this.urlEndPoint}/${cliente.id}`, cliente, {headers : this.httpHeaders})
     .pipe(catchError( e => {
+
+      if(this.isNoAutorizado(e) == true){
+        return throwError(e);
+      }
 
       //MANEJANDO EL ERROR Q VIENE DESDE LA VALIDACIÓN DE SPRING
       if(e.status==400){
@@ -148,35 +123,16 @@ export class ClienteService {
   public delete(id : number) : Observable<Cliente> {
     return this.http.delete<Cliente>(`${this.urlEndPoint}/${id}`, {headers : this.httpHeaders})
     .pipe(catchError( e => {
+
+      if(this.isNoAutorizado(e) == true){
+        return throwError(e);
+      }
+
       console.error(e.error.mensaje);
       swal.fire(e.error.mensaje, e.error.error, 'error');
       return throwError(e);
     }));
   }
-
-  /*
-  //SIN BARRA DE CARGA DE IMAGEN
-  subirFoto(archivo : File, id) : Observable<Cliente> {
-    let formData = new FormData();
-    formData.append("archivo",archivo);
-    formData.append("id",id);
-
-    const req = new HttpRequest('POST', '/upload/file', file, {
-      reportProgress: true
-    });
-
-    return this.http.post(`${this.urlEndPoint}/upload`,formData).pipe(
-      map((response : any) => response.cliente as Cliente),
-      catchError(
-        e => {
-         console.error(e.error.mensaje);
-         swal.fire(e.error.mensaje, e.error.error, 'error');
-         return throwError(e);
-       }
-      )
-    );
-  }
-  */
 
   //CLASE 105 : CON BARRA DE CARGA DE IMAGEN
   subirFoto(archivo : File, id) : Observable<HttpEvent<{}>> {
@@ -188,7 +144,33 @@ export class ClienteService {
       reportProgress: true
     });
 
-    return this.http.request(req);
+    return this.http.request(req).pipe(
+      catchError(e => {
+        this.isNoAutorizado(e);
+        return throwError(e);
+      })
+    );
+  }
+
+
+  getRegiones() : Observable<Region[]> {
+    return this.http.get<Region[]>(this.urlEndPoint + '/regiones').pipe(
+      catchError(e => {
+        this.isNoAutorizado(e);
+        return throwError(e);
+      })
+    );
+  }
+
+
+  //RECIBE EL ERROR, SEGÚN LOS PERMISOS Q TENGA EL USUARIO PARA INGRESAR A UNA RUTA.
+  private isNoAutorizado(e) : boolean {
+    //401 : NO AUTORIZADO //403 : RECURSO PROHIBIDO
+    if(e.status==401 || e.status==403){
+      this.router.navigate(['/login']);
+      return true
+    }
+    return false;
   }
 
 

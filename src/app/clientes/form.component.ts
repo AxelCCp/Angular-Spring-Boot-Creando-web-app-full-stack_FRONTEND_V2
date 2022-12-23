@@ -4,6 +4,7 @@ import { ClienteService } from './cliente.service';
 import { Router } from '@angular/router';
 import swal from 'sweetalert2';
 import { ActivatedRoute } from '@angular/router';   //SE USA PARA OBTENER EL ID DEL CLIENTE , PARA EL MÉTODO FIND BY ID, en cargarCliente().
+import { Region } from './region';
 
 //REGISTRA LA RUTA EN EL APP.MODULE.TS
 
@@ -14,15 +15,17 @@ import { ActivatedRoute } from '@angular/router';   //SE USA PARA OBTENER EL ID 
 export class FormComponent implements OnInit {
 
   constructor(private clienteService : ClienteService, private router : Router, private activatedRoute : ActivatedRoute) { }
+
   ngOnInit(): void {
     //PARA QUE CARGUE LOS DATOS DEL CLIENTE EN EL FORMULARIO AL APRETAR BOTON EDITAR.
     this.cargarCliente();
+    this.clienteService.getRegiones().subscribe(regiones => this.regiones = regiones);
   }
 
 
   public create() : void {
+    console.log(this.cliente);
     //console.log('clicked!');
-    //console.log(this.cliente);
     this.clienteService.create(this.cliente).subscribe(
       (cliente) => {
         this.router.navigate(['/clientes'])                    //CON ESTO REDIRIGE AL LISTADO DE CLIENTES PARA MOSTRAR LOS CAMBIOS.
@@ -46,7 +49,9 @@ export class FormComponent implements OnInit {
     });
   }
 
+
   public update() : void{
+    console.log(this.cliente);
     this.clienteService.update(this.cliente).subscribe(
       (json) => {
         this.router.navigate(['/clientes']);
@@ -60,8 +65,18 @@ export class FormComponent implements OnInit {
   );
   }
 
+  //clase 118
+  compararRegion(obj1:Region, obj2:Region) : boolean {
+    if(obj1 === undefined && obj2 === undefined){
+      return true;                                          //SI NO ESTÁ DEFINIDA LA REGIÓN, EN EL CREAR CLIENTE, MARCA "--- Seleccionar una región ---"
+    }
+
+    return obj1 === null || obj2 === null || obj1 === undefined || obj2 === undefined ? false : obj1.id === obj2.id;   //SI AL COMPARAR, SON IGUALES, DEVUELVE TRUE, Y LO MUESTRA EN EL FORMULARIO.
+  }
+
   cliente : Cliente = new Cliente();    //EL OBJ CLIENTE SE CARGA CON LOS DATOS DEL FORMULARIO. FUNCIONA EN AMBAS DIRECCIONES. O SEA TAMBN PARA CARGAR LOS DATOS DEL FORMULARIO DESDE EL BACK.
   titulo : string = 'Crear cliente';
   errores : string[];
+  regiones : Region[];
 
 }

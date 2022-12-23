@@ -12,7 +12,8 @@ import { FormComponent } from './clientes/form.component';
 import { FormsModule } from '@angular/forms';
 import { PaginatorComponent } from './paginator/paginator.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { DetalleComponent } from './clientes/detalle/detalle.component';   //PARA TRABAJAR CON FORMULARIOS.
+import { DetalleComponent } from './clientes/detalle/detalle.component';
+import { LoginComponent } from './usuarios/login.component';   //PARA TRABAJAR CON FORMULARIOS.
 //import { MatDatepickerModule } from '@angular/material/core'
 //import { /*MatDatepickerModule*/  MatNativeDateModule } from '@angular/material/core'
 
@@ -24,6 +25,7 @@ const routes : Routes = [
   {path:'clientes/form/:id', component:FormComponent},
   {path:'clientes/page/:page', component:ClientesComponent}, //RUTA CON PAGE
   //{path:'clientes/ver/:id', component:DetalleComponent},    //SE QUITA PQ SE CAMBIA POR UN MODAL.
+  {path:'login', component:LoginComponent}
 ];
 
 @NgModule({
@@ -35,7 +37,8 @@ const routes : Routes = [
     ClientesComponent,
     FormComponent,
     PaginatorComponent,
-    DetalleComponent
+    DetalleComponent,
+    LoginComponent
 
   ],
   imports: [

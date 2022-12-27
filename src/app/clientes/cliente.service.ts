@@ -15,15 +15,17 @@ import { tap } from 'rxjs/operators';
 import { HttpRequest } from '@angular/common/http';
 import { HttpEvent } from '@angular/common/http';
 import { Region} from './region';
+import { AuthService } from '../usuarios/auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ClienteService {
 
-  constructor(http : HttpClient, router : Router) {
+  constructor(http : HttpClient, router : Router, authService : AuthService) {
     this.http = http;
     this.router = router;
+    this.authService = authService;
   }
 
 
@@ -174,8 +176,14 @@ export class ClienteService {
   }
 
 
+  private agregarAuthorizationHeader(){
+    //TOKEN ES EL MÉTODO GETTER Q ACCEDE A TOKEN. EL GETTER LO VA AA BUSCAR AL ATRIBUTO PRIVADO _TOKEN Y SI NO LO ENCUENTRA LO VA A BUSCAR AL sessionStorage.
+    let token = this.authService.token;
+  }
+
   private http : HttpClient;
   private urlEndPoint : string = 'http://localhost:8080/api/clientes';
   private httpHeaders = new HttpHeaders({'Content-Type' : 'application/json'})
   private router : Router;
+  private authService : AuthService;
 }

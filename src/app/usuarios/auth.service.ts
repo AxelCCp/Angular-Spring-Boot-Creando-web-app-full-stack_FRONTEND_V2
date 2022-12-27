@@ -16,7 +16,7 @@ export class AuthService {
     const urlEndPoint = "http://localhost:8080/oauth/token";
     const credenciales = btoa('angularapp' + ':' + '12345');                                         //SE ENCRIPTA EN BASE64
 
-    const httpHeaders = new HttpHeaders({'Content-type' : 'application/x-www-form-urlencoded',
+    const httpHeaders = new HttpHeaders({'Content-Type' : 'application/x-www-form-urlencoded',
                                          'Authorization' : 'Basic ' + credenciales});
 
     let params = new URLSearchParams();
@@ -33,6 +33,7 @@ export class AuthService {
     let payload = this.obtenerDatostoken(accessToken);
     this._usuario = new Usuario();
     this._usuario.nombre = payload.nombre;
+    console.log('this._usuario.nombre = payload.nombre;');
     this._usuario.apellido = payload.apellido;
     this._usuario.email = payload.email;
     this._usuario.username = payload.user_name;
@@ -51,7 +52,7 @@ export class AuthService {
 
   obtenerDatostoken(accessToken:string) : any {
     if(accessToken!=null){
-      JSON.parse(atob(accessToken.split(".")[1]));
+      return JSON.parse(atob(accessToken.split(".")[1]));
     }
     return null;
   }
@@ -80,6 +81,26 @@ export class AuthService {
       return this._token;
     }
     return null;
+  }
+
+
+  //PARA SABER SI YA ESTÁ AUTENTICADO Y NO VOLVER A LA PÁGINA DE LOGIN.  //this.token : LLAMA AL MÉTODO GET TOKEN.
+  isAuthenticated() : boolean {
+      let payload = this.obtenerDatostoken(this.token);
+      if(payload != null && payload.user_name && payload.user_name.length > 0){
+        return true;
+      }
+      return false;
+  }
+
+  logout() : void {
+    this._token = null;
+    this._usuario = null;
+
+    sessionStorage.clear();                 // SE BORRA TODA LA INFO DEL SESSION STORAGE.
+    sessionStorage.removeItem('token');       //TAMBN SE PUEDE ELIMINAR LA INFO POR SEPARADO POR SI EES Q NO SE QUIERE ELIMINAR TODO.
+    sessionStorage.removeItem('usuario');
+
   }
 
 

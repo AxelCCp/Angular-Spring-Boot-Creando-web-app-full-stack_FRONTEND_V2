@@ -5,6 +5,7 @@ import swal from 'sweetalert2';
 import { HttpEventType } from '@angular/common/http';
 import { Input } from '@angular/core';
 import { ModalService } from './modal.service';
+import { AuthService } from '../../usuarios/auth.service';
 
 @Component({
   selector: 'detalle-cliente',
@@ -13,9 +14,10 @@ import { ModalService } from './modal.service';
 })
 export class DetalleComponent implements OnInit {
 
-  constructor(clienteService : ClienteService, modalService : ModalService) {
+  constructor(clienteService : ClienteService, modalService : ModalService, authService : AuthService) {
     this.clienteService = clienteService;
     this.modalService = modalService;
+    this.authService = authService;
   }
 
   ngOnInit(): void {}
@@ -68,4 +70,5 @@ export class DetalleComponent implements OnInit {
   fotoSeleccionada : File;
   progreso : Number = 0;
   modalService : ModalService;
+  authService : AuthService;
 }

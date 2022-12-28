@@ -16,13 +16,18 @@ import { DetalleComponent } from './clientes/detalle/detalle.component';
 import { LoginComponent } from './usuarios/login.component';   //PARA TRABAJAR CON FORMULARIOS.
 //import { MatDatepickerModule } from '@angular/material/core'
 //import { /*MatDatepickerModule*/  MatNativeDateModule } from '@angular/material/core'
+import { AuthGuard } from './usuarios/guards/auth.guard';             //156 PARA REGISTRAR EL O LOS GUARDS Q SE TENGAN.
+import { RoleGuard } from './usuarios/guards/role.guard';             //157 PARA REGISTRAR EL O LOS GUARDS Q SE TENGAN.
+import { TokenInterceptor } from './usuarios/interceptors/token.interceptor';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AuthInterceptor } from './usuarios/interceptors/auth.interceptor';
 
 const routes : Routes = [
   {path:'', redirectTo:'/clientes', pathMatch:'full'},    //ESTE ES EL HOME Y REDIRIGE A CLIENTES. PATHMATCH FULL : HACE MATCH COMPLETO CON LA URL.
   {path:'directivas', component:DirectivaComponent},
   {path:'clientes', component:ClientesComponent},  //RUTA CON LIST
-  {path:'clientes/form', component:FormComponent},
-  {path:'clientes/form/:id', component:FormComponent},
+  {path:'clientes/form', component:FormComponent, canActivate:[AuthGuard, RoleGuard], data: {role:'ROLE_ADMIN'}},          //SE PASA AuthGuard PARA VERIFICAR AUTENTICACIÓN. //SE PASA RoleGuard Y PARÁMETRO ROLE PARA VALIDAR EL ROLE Q TIENE EL USUARIO.
+  {path:'clientes/form/:id', component:FormComponent, canActivate:[AuthGuard, RoleGuard], data: {role:'ROLE_ADMIN'}},
   {path:'clientes/page/:page', component:ClientesComponent}, //RUTA CON PAGE
   //{path:'clientes/ver/:id', component:DetalleComponent},    //SE QUITA PQ SE CAMBIA POR UN MODAL.
   {path:'login', component:LoginComponent}
@@ -50,7 +55,12 @@ const routes : Routes = [
     //MatDatepickerModule,
     //MatNativeDateModule
   ],
-  providers: [ClienteService],
+  providers: [
+    ClienteService,
+    { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

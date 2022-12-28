@@ -104,6 +104,16 @@ export class AuthService {
   }
 
 
+  //154 PARA OCULTAR LOS BOTONES DEPENDIENDO DEL ROLE DEL Usuario
+  hasRole(role : string) : boolean {
+    //this.usuario : ESTE ES EL GETTER
+    if(this.usuario.roles.includes(role)){
+      return true;
+    }
+    return false;
+  }
+
+
   private http : HttpClient;
   private _usuario : Usuario;
   private _token : string;

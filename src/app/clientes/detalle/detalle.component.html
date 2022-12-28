@@ -24,7 +24,7 @@
                 </ul>
 
                 <!--seleccionarFoto($event) : con $event se accede al archivo q se está enviando en el front. -->
-                <div class="input-group mb-3">
+                <div class="input-group mb-3" *ngIf="authService.hasRole('ROLE_ADMIN')">
                   <input (change)="seleccionarFoto($event)" type="file" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload">
                   <button (click)="subirFoto()" [disabled]="!fotoSeleccionada" class="btn btn-outline-secondary" type="button" id="inputGroupFileAddon04">Subir</button>
                 </div>

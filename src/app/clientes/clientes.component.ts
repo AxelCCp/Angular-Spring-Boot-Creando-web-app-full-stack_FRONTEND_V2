@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 import { tap } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';         //PARA ACTIVAR EL PATH VARIABLE DE LA PAGINACIÓN
 import { ModalService } from './detalle/modal.service';
+import { AuthService } from '../usuarios/auth.service';
 
 
 @Component({
@@ -13,10 +14,11 @@ import { ModalService } from './detalle/modal.service';
 })
 export class ClientesComponent implements OnInit {
 
-  constructor(clienteService:ClienteService, activatedRoute : ActivatedRoute, modalService : ModalService) {
+  constructor(clienteService:ClienteService, activatedRoute : ActivatedRoute, modalService : ModalService, authService : AuthService) {
     this.clienteService = clienteService;
     this.activatedRoute = activatedRoute;
     this.modalService = modalService;
+    this.authService = authService;
   }
 
 //CON LIST
@@ -118,5 +120,6 @@ export class ClientesComponent implements OnInit {
   paginador : any;
   clienteSeleccionado : Cliente;
   private modalService : ModalService;
+  authService : AuthService;
 
 }
